@@ -13,15 +13,20 @@ export default function HomePage() {
   const [products, setProducts] = useState([]);
   const authFetch = useAuthenticatedFetch();
   const navigate = useNavigate()
-  
+
+  const fetchProducts = async () => {
+    try {
+      const response = await authFetch('/api/products');
+      const jsonData = await response.json();
+      setProducts(jsonData.data);
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+  }
+
   useEffect(() => {
-    authFetch('/api/products')
-    .then((response) => response.json())
-    .then((json) => {
-      setProducts(json.data)
-    })
-    .catch((err) => console.log('Error: ', err));
-  }, []);
+    fetchProducts();
+  }, [products]);
 
   const resourceName = {
     singular: 'products',
@@ -74,7 +79,7 @@ export default function HomePage() {
 						{title: 'Stock'},
 						{title: 'Price'},
 						{title: 'Vendor'},
-            {title: 'Edit'},
+            {title: 'Update price'},
 					]}
 					selectable={false}
 				>
