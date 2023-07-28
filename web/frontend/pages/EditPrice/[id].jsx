@@ -15,28 +15,38 @@ export default function EditPrice() {
   const formLabel = `Update price for - ${productTiele} - Current price: $${oldPrice}`;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    authFetch(`/api/products/${id}`)
-    .then((response) => response.json())
-    .then((data) => {
+  const fetchProduct = async (id) => {
+    try {
+      const response = await authFetch(`/api/products/${id}`);
+      const data = await response.json();
       setVariantId(data.variants[0].admin_graphql_api_id)
       setOldPrice(data.variants[0].price);
       setProductTiele(data.title);
-    })
-    .catch((err) => console.log('Error: ', err));
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+  }
+
+  const updatePrice = async (request) => {
+    try {
+      await authFetch(`/api/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+    } catch (err) {
+      console.error('Error: ', err);
+    }
+  }
+
+  useEffect(() => {
+    fetchProduct(id);
   }, []);
 
   useEffect(() => {
-    authFetch(`/api/update`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    })
-    .then((response) => response.json())
-    .then((data) => console.log(data))
-    .catch((error) => console.log(error))
+    updatePrice(request);
   }, [authFetch, request]);
 
   const handleSubmit = (event) => {
